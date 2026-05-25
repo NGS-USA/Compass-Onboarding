@@ -40,14 +40,23 @@ const sectionSources = [
 export default function Home() {
   const [current, setCurrent] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
+  const [submitted, setSubmitted] = useState(false);
 
   const progress = Math.round((completed.length / 9) * 100);
 
   const markComplete = () => {
     if (!completed.includes(current)) {
-      setCompleted([...completed, current]);
+      setCompleted((prev) => [...prev, current]);
     }
-    if (current < 8) setCurrent(current + 1);
+    if (current < 8) {
+      setCurrent(current + 1);
+    } else {
+      setSubmitted(true);
+    }
+  };
+
+  const handleNavigate = (i: number) => {
+    setCurrent(i);
   };
 
   const renderSection = () => {
@@ -65,16 +74,58 @@ export default function Home() {
     }
   };
 
+  if (submitted) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <TopNav progress={100} />
+        <div className="flex flex-1 items-center justify-center bg-compass-bg">
+          <div className="bg-white border border-compass-border rounded-2xl p-12 max-w-md text-center shadow-sm">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <span className="text-compass-green text-3xl">✓</span>
+            </div>
+            <h2 className="text-xl font-semibold text-compass-navy mb-2">
+              Onboarding Submitted!
+            </h2>
+            <p className="text-sm text-compass-muted mb-6">
+              Thank you for completing the Compass practice intake. The Integrated Allergy team will review your submission and reach out within 2 business days.
+            </p>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setCurrent(0);
+                setCompleted([]);
+              }}
+              className="text-sm text-compass-blue hover:underline"
+            >
+              Start a new submission
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <TopNav progress={progress} />
       <div className="flex flex-1">
-        <Sidebar current={current} completed={completed} onNavigate={setCurrent} />
+        <Sidebar
+          current={current}
+          completed={completed}
+          onNavigate={handleNavigate}
+        />
         <main className="flex-1 p-8 max-w-4xl">
           <div className="mb-6">
-            <h1 className="text-xl font-semibold text-compass-navy mb-1">
-              {sectionTitles[current]}
-            </h1>
+            <div className="flex items-center gap-3 mb-1">
+              <h1 className="text-xl font-semibold text-compass-navy">
+                {sectionTitles[current]}
+              </h1>
+              {completed.includes(current) && (
+                <span className="text-xs bg-green-100 text-compass-green font-medium px-2 py-0.5 rounded-full">
+                  Complete
+                </span>
+              )}
+            </div>
             <p className="text-xs text-compass-muted">
               Source: {sectionSources[current]}
             </p>
@@ -91,13 +142,39 @@ export default function Home() {
               >
                 ← Previous
               </button>
-              <button
-                onClick={markComplete}
-                className="bg-compass-green text-white text-sm px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
-              >
-                {current === 8 ? "Submit Onboarding ✓" : "Mark Complete & Continue →"}
-              </button>
+
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-compass-muted">
+                  {current + 1} of 9
+                </span>
+                <button
+                  onClick={markComplete}
+                  className="bg-compass-green text-white text-sm px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  {current === 8
+                    ? "Submit Onboarding ✓"
+                    : completed.includes(current)
+                    ? "Next Section →"
+                    : "Mark Complete & Continue →"}
+                </button>
+              </div>
             </div>
+          </div>
+
+          <div className="flex justify-center gap-2 mt-4">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`h-1.5 rounded-full transition-all duration-200 ${
+                  i === current
+                    ? "w-6 bg-compass-navy"
+                    : completed.includes(i)
+                    ? "w-1.5 bg-compass-green"
+                    : "w-1.5 bg-compass-border"
+                }`}
+              />
+            ))}
           </div>
         </main>
       </div>
