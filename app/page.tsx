@@ -7,6 +7,11 @@ import Section1 from "@/components/sections/Section1";
 import Section2 from "@/components/sections/Section2";
 import Section3 from "@/components/sections/Section3";
 import Section4 from "@/components/sections/Section4";
+import Section5 from "@/components/sections/Section5";
+import Section6 from "@/components/sections/Section6";
+import Section7 from "@/components/sections/Section7";
+import Section8 from "@/components/sections/Section8";
+import Section9 from "@/components/sections/Section9";
 
 const sectionTitles = [
   "Practice Information",
@@ -51,12 +56,12 @@ export default function Home() {
       case 1: return <Section2 />;
       case 2: return <Section3 />;
       case 3: return <Section4 />;
-      default:
-        return (
-          <div className="text-compass-muted text-sm py-8 text-center">
-            Section {current + 1} coming soon.
-          </div>
-        );
+      case 4: return <Section5 />;
+      case 5: return <Section6 />;
+      case 6: return <Section7 />;
+      case 7: return <Section8 />;
+      case 8: return <Section9 />;
+      default: return null;
     }
   };
 
@@ -90,7 +95,7 @@ export default function Home() {
                 onClick={markComplete}
                 className="bg-compass-green text-white text-sm px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
               >
-                {current === 8 ? "Submit Onboarding" : "Mark Complete & Continue →"}
+                {current === 8 ? "Submit Onboarding ✓" : "Mark Complete & Continue →"}
               </button>
             </div>
           </div>
