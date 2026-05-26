@@ -118,7 +118,6 @@ export default function SessionDetailPage() {
       <SessionDetailHeader session={session} />
 
       <div className="max-w-6xl mx-auto px-6 py-6 flex gap-6">
-        {/* Left sidebar — section navigation */}
         <div className="flex flex-col gap-4">
           <SessionSidebar
             current={current}
@@ -126,12 +125,18 @@ export default function SessionDetailPage() {
             onNavigate={setCurrent}
           />
           <SessionActions
-            session={session}
+            session={{
+              id: session.id,
+              clinic_name: session.clinic_name,
+              poc_name: session.poc_name,
+              poc_email: session.poc_email,
+              status: session.status,
+              token: session.token,
+            }}
             completedCount={completed.length}
           />
         </div>
 
-        {/* Main form area */}
         <div className="flex-1">
           <div className="bg-white border border-compass-border rounded-xl p-6">
             <div className="mb-6">

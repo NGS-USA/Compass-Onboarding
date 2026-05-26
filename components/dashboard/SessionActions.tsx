@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 export default function SessionActions({
   session,
   completedCount,
@@ -13,10 +15,43 @@ export default function SessionActions({
   }
   completedCount: number
 }) {
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState("")
+  const [copied, setCopied] = useState(false)
+
   const inviteUrl = `${window.location.origin}/onboarding/${session.token}`
 
   const copyLink = () => {
     navigator.clipboard.writeText(inviteUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const sendInvite = async () => {
+    setSending(true)
+    setError("")
+
+    try {
+      const res = await fetch("/api/send-invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pocName: session.poc_name,
+          pocEmail: session.poc_email,
+          clinicName: session.id,
+          token: session.token,
+        }),
+      })
+
+      if (!res.ok) throw new Error("Failed to send")
+      setSent(true)
+    } catch (err) {
+      setError("Failed to send email. Please try again.")
+      console.error(err)
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -56,22 +91,32 @@ export default function SessionActions({
             onClick={copyLink}
             className="w-full text-xs border border-compass-border text-compass-muted py-1.5 rounded-lg hover:border-compass-navy hover:text-compass-navy transition-colors"
           >
-            Copy Link
+            {copied ? "Copied ✓" : "Copy Link"}
           </button>
         </div>
 
         <hr className="border-compass-border" />
 
-        {/* Send invite email — will be wired in v0.3.02 */}
-        <button
-          disabled
-          className="w-full bg-compass-navy text-white text-xs py-2 rounded-lg opacity-40 cursor-not-allowed"
-        >
-          Send Invite Email
-        </button>
-        <p className="text-xs text-compass-muted text-center">
-          Email sending coming in next update
-        </p>
+        {/* Send invite email */}
+        {sent ? (
+          <div className="text-center py-1">
+            <div className="text-compass-green text-xs font-medium">
+              ✓ Invite sent to {session.poc_email}
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={sendInvite}
+            disabled={sending}
+            className="w-full bg-compass-navy text-white text-xs py-2 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {sending ? "Sending..." : "Send Invite Email"}
+          </button>
+        )}
+
+        {error && (
+          <p className="text-xs text-red-500 text-center">{error}</p>
+        )}
 
         {/* Approve — only show if submitted */}
         {session.status === "submitted" && (
