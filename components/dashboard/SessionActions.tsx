@@ -8,6 +8,7 @@ export default function SessionActions({
 }: {
   session: {
     id: string
+    clinic_name: string
     status: string
     poc_name: string
     poc_email: string
